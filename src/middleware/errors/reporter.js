@@ -1,5 +1,4 @@
-import logger from '~/utilities/logger';
-import Tantrum from '~/utilities/tantrum';
+import { logger, Tantrum } from '~/utilities';
 
 // First method in the error stack
 // catches the error, logs it and

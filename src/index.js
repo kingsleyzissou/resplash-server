@@ -1,16 +1,20 @@
 import express from 'express';
-import app from '~/app';
+import server from '~/server';
 import config from '~/config';
-import logger from '~/utilities/logger';
+import database from '~/database';
+import { logger } from '~/utilities';
 
 // Prepare the server
-const server = app(express);
+const app = server(express);
 
 // Get the server port
-const { port } = config;
+const { port, db } = config;
+
+// Connect to the database
+database.connect(db);
 
 // Start the server
-server.listen(port, () => {
+app.listen(port, () => {
   logger.info(
     `App started on http://localhost:${port}`,
   );

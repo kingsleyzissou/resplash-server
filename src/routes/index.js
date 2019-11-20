@@ -1,5 +1,5 @@
 import errors from '~/middleware/errors';
-import Tantrum from '~/utilities/tantrum';
+import { Tantrum } from '~/utilities';
 
 export default (router) => {
   router.get('/', (req, res) => {

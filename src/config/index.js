@@ -6,6 +6,13 @@ dotenv.config();
 export default {
   port: process.env.APP_PORT || 4000,
   root: path.resolve(__dirname, '../', '../'),
-  db: process.env.DB_HOST,
+  db: {
+    host: process.env.DB_HOST,
+    options: {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  },
   jwtSecret: process.env.JWT_SECRET,
 };

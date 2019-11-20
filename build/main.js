@@ -88,43 +88,6 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/app.js":
-/*!********************!*\
-  !*** ./src/app.js ***!
-  \********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cors */ "cors");
-/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cors__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! helmet */ "helmet");
-/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(helmet__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! body-parser */ "body-parser");
-/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = (express => {
-  const app = express();
-  const router = express.Router();
-  app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()());
-  app.use(helmet__WEBPACK_IMPORTED_MODULE_1___default()());
-  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.urlencoded({
-    extended: true
-  }));
-  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json()); // this statement is last
-  // so error handling can be
-  // applied
-
-  return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_3__["default"])(router));
-});
-
-/***/ }),
-
 /***/ "./src/config/index.js":
 /*!*****************************!*\
   !*** ./src/config/index.js ***!
@@ -144,10 +107,54 @@ dotenv__WEBPACK_IMPORTED_MODULE_1___default.a.config();
 /* harmony default export */ __webpack_exports__["default"] = ({
   port: process.env.APP_PORT || 4000,
   root: path__WEBPACK_IMPORTED_MODULE_0___default.a.resolve(__dirname, '../', '../'),
-  db: process.env.DB_HOST,
+  db: {
+    host: process.env.DB_HOST,
+    options: {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
+  },
   jwtSecret: process.env.JWT_SECRET
 });
 /* WEBPACK VAR INJECTION */}.call(this, "src/config"))
+
+/***/ }),
+
+/***/ "./src/database/index.js":
+/*!*******************************!*\
+  !*** ./src/database/index.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+
+
+const database = {
+  // Connect to MongoDB
+  async connect({
+    host,
+    options
+  }) {
+    // Attempt connection or else
+    // catch any connection errors
+    await mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.connect(host, options).catch(error => this.report(error)); // Handle errors after initial connection
+
+    mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.connection.on('error', error => this.report(error));
+  },
+
+  // Report errors
+  report(error) {
+    _utilities__WEBPACK_IMPORTED_MODULE_1__["logger"].error(error);
+  }
+
+};
+/* harmony default export */ __webpack_exports__["default"] = (database);
 
 /***/ }),
 
@@ -162,22 +169,27 @@ dotenv__WEBPACK_IMPORTED_MODULE_1___default.a.config();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/app */ "./src/app.js");
+/* harmony import */ var _server__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/server */ "./src/server.js");
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/config */ "./src/config/index.js");
-/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
+/* harmony import */ var _database__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/database */ "./src/database/index.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+
 
 
 
  // Prepare the server
 
-const server = Object(_app__WEBPACK_IMPORTED_MODULE_1__["default"])(express__WEBPACK_IMPORTED_MODULE_0___default.a); // Get the server port
+const app = Object(_server__WEBPACK_IMPORTED_MODULE_1__["default"])(express__WEBPACK_IMPORTED_MODULE_0___default.a); // Get the server port
 
 const {
-  port
-} = _config__WEBPACK_IMPORTED_MODULE_2__["default"]; // Start the server
+  port,
+  db
+} = _config__WEBPACK_IMPORTED_MODULE_2__["default"]; // Connect to the database
 
-server.listen(port, () => {
-  _utilities_logger__WEBPACK_IMPORTED_MODULE_3__["default"].info(`App started on http://localhost:${port}`);
+_database__WEBPACK_IMPORTED_MODULE_3__["default"].connect(db); // Start the server
+
+app.listen(port, () => {
+  _utilities__WEBPACK_IMPORTED_MODULE_4__["logger"].info(`App started on http://localhost:${port}`);
 });
 
 /***/ }),
@@ -240,9 +252,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
-/* harmony import */ var _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities/tantrum */ "./src/utilities/tantrum.js");
-
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
  // First method in the error stack
 // catches the error, logs it and
 // passes it down the stack
@@ -252,9 +262,9 @@ const reporter = ({
   status
 }, req, res, next) => {
   // Throw tantrum to be used for error
-  const error = new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](status, message); // Log error
+  const error = new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](status, message); // Log error
 
-  _utilities_logger__WEBPACK_IMPORTED_MODULE_0__["default"].error(error); // Pass the error on
+  _utilities__WEBPACK_IMPORTED_MODULE_0__["logger"].error(error); // Pass the error on
 
   next(error);
 };
@@ -273,7 +283,7 @@ const reporter = ({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _middleware_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/middleware/errors */ "./src/middleware/errors/index.js");
-/* harmony import */ var _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities/tantrum */ "./src/utilities/tantrum.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
 
 
 /* harmony default export */ __webpack_exports__["default"] = (router => {
@@ -285,11 +295,11 @@ __webpack_require__.r(__webpack_exports__);
   // handling
 
   router.get('/error', () => {
-    throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](500, 'some error');
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, 'some error');
   }); // Last route to catch 404 endpoints
 
   router.use((req, res, next) => {
-    const error = new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](404, 'Not found');
+    const error = new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](404, 'Not found');
     next(error);
   }); // Catch all errors and report
 
@@ -298,6 +308,64 @@ __webpack_require__.r(__webpack_exports__);
 
   return router.use(_middleware_errors__WEBPACK_IMPORTED_MODULE_0__["default"].handler);
 });
+
+/***/ }),
+
+/***/ "./src/server.js":
+/*!***********************!*\
+  !*** ./src/server.js ***!
+  \***********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cors */ "cors");
+/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cors__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! helmet */ "helmet");
+/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(helmet__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! body-parser */ "body-parser");
+/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (express => {
+  const app = express();
+  const router = express.Router();
+  app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()());
+  app.use(helmet__WEBPACK_IMPORTED_MODULE_1___default()());
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.urlencoded({
+    extended: true
+  }));
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json()); // this statement is last
+  // so error handling can be
+  // applied
+
+  return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_3__["default"])(router));
+});
+
+/***/ }),
+
+/***/ "./src/utilities/index.js":
+/*!********************************!*\
+  !*** ./src/utilities/index.js ***!
+  \********************************/
+/*! exports provided: logger, Tantrum */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./logger */ "./src/utilities/logger.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "logger", function() { return _logger__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _tantrum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./tantrum */ "./src/utilities/tantrum.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tantrum", function() { return _tantrum__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+
+
+
 
 /***/ }),
 
@@ -318,7 +386,8 @@ const {
   colorize,
   simple,
   json
-} = winston__WEBPACK_IMPORTED_MODULE_0__["format"];
+} = winston__WEBPACK_IMPORTED_MODULE_0__["format"]; // Create the logger for the app
+
 const logger = Object(winston__WEBPACK_IMPORTED_MODULE_0__["createLogger"])({
   level: 'info',
   format: json(),
@@ -339,6 +408,10 @@ const logger = Object(winston__WEBPACK_IMPORTED_MODULE_0__["createLogger"])({
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+// Custom error that extends
+// the default Error object.
+// Tantrum provides the ability
+// to add status codes to the error message
 class Tantrum extends Error {
   constructor(code, message) {
     super(message);
@@ -415,6 +488,17 @@ module.exports = require("express");
 /***/ (function(module, exports) {
 
 module.exports = require("helmet");
+
+/***/ }),
+
+/***/ "mongoose":
+/*!***************************!*\
+  !*** external "mongoose" ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("mongoose");
 
 /***/ }),
 
