@@ -99,12 +99,43 @@ module.exports =
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var utilities_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! utilities/logger */ "./src/utilities/logger.js");
+
 
 const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
 const port = 3000;
 app.listen(port, () => {
-  console.log(`App now running on port ${port}`);
+  utilities_logger__WEBPACK_IMPORTED_MODULE_1__["default"].info(`App started on http://localhost:${port}`);
 });
+
+/***/ }),
+
+/***/ "./src/utilities/logger.js":
+/*!*********************************!*\
+  !*** ./src/utilities/logger.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var winston__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! winston */ "winston");
+/* harmony import */ var winston__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(winston__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  combine,
+  colorize,
+  simple,
+  json
+} = winston__WEBPACK_IMPORTED_MODULE_0__["format"];
+const logger = Object(winston__WEBPACK_IMPORTED_MODULE_0__["createLogger"])({
+  level: 'info',
+  format: json(),
+  transports: [new winston__WEBPACK_IMPORTED_MODULE_0__["transports"].Console({
+    format: combine(colorize(), simple())
+  })]
+});
+/* harmony default export */ __webpack_exports__["default"] = (logger);
 
 /***/ }),
 
@@ -128,6 +159,17 @@ module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-serv
 /***/ (function(module, exports) {
 
 module.exports = require("express");
+
+/***/ }),
+
+/***/ "winston":
+/*!**************************!*\
+  !*** external "winston" ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("winston");
 
 /***/ })
 

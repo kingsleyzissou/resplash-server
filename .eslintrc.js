@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   env: {
     es6: true,
@@ -13,6 +15,15 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
+  },
+  settings: {
+    "import/resolver": {
+      alias: [
+        ["~", "./src"],
+        ["utilities", "./src/utilities"]
+      ],
+
+    }
   },
   rules: {
     "globalRequire": 0,
