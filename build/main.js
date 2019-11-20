@@ -88,6 +88,36 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/app.js":
+/*!********************!*\
+  !*** ./src/app.js ***!
+  \********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cors */ "cors");
+/* harmony import */ var cors__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cors__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! helmet */ "helmet");
+/* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(helmet__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! body-parser */ "body-parser");
+/* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (app => {
+  app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()());
+  app.use(helmet__WEBPACK_IMPORTED_MODULE_1___default()());
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.urlencoded({
+    extended: true
+  }));
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json());
+  return app;
+});
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -99,13 +129,15 @@ module.exports =
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var utilities_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! utilities/logger */ "./src/utilities/logger.js");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/app */ "./src/app.js");
+/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
 
 
-const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
+
+const server = Object(_app__WEBPACK_IMPORTED_MODULE_1__["default"])(express__WEBPACK_IMPORTED_MODULE_0___default()());
 const port = 3000;
-app.listen(port, () => {
-  utilities_logger__WEBPACK_IMPORTED_MODULE_1__["default"].info(`App started on http://localhost:${port}`);
+server.listen(port, () => {
+  _utilities_logger__WEBPACK_IMPORTED_MODULE_2__["default"].info(`App started on http://localhost:${port}`);
 });
 
 /***/ }),
@@ -151,6 +183,28 @@ module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-serv
 
 /***/ }),
 
+/***/ "body-parser":
+/*!******************************!*\
+  !*** external "body-parser" ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("body-parser");
+
+/***/ }),
+
+/***/ "cors":
+/*!***********************!*\
+  !*** external "cors" ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("cors");
+
+/***/ }),
+
 /***/ "express":
 /*!**************************!*\
   !*** external "express" ***!
@@ -159,6 +213,17 @@ module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-serv
 /***/ (function(module, exports) {
 
 module.exports = require("express");
+
+/***/ }),
+
+/***/ "helmet":
+/*!*************************!*\
+  !*** external "helmet" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("helmet");
 
 /***/ }),
 

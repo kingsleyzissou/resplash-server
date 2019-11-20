@@ -1,10 +1,12 @@
 import express from 'express';
-import logger from 'utilities/logger';
+import app from '~/app';
+import logger from '~/utilities/logger';
 
-const app = express();
+const server = app(express());
+
 const port = 3000;
 
-app.listen(port, () => {
+server.listen(port, () => {
   logger.info(
     `App started on http://localhost:${port}`,
   );
