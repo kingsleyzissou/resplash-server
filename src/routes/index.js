@@ -1,5 +1,6 @@
 import errors from '~/middleware/errors';
 import { Tantrum } from '~/utilities';
+import { login, register } from '~/services/auth';
 
 export default (router) => {
   router.get('/', (req, res) => {
@@ -10,6 +11,19 @@ export default (router) => {
   // handling
   router.get('/error', () => {
     throw new Tantrum(500, 'some error');
+  });
+
+  router.post('/login', async (req, res, next) => {
+    const { username, password } = req.body;
+    const response = await login(username, password)
+      .catch((err) => next(err));
+    res.status(200).send(response);
+  });
+
+  router.post('/register', async (req, res, next) => {
+    const response = await register(req.body)
+      .catch((err) => next(err));
+    res.status(200).send(response);
   });
 
   // Last route to catch 404 endpoints

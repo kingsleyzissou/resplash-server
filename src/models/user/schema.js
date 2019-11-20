@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 const { Schema } = mongoose;
 
 const schema = new Schema({
@@ -11,14 +12,14 @@ const schema = new Schema({
   },
   email: {
     type: String,
+    required: true,
   },
   password: {
     type: String,
     required: true,
-    select: false,
   },
   created_at: Date,
   updated_at: Date,
 });
 
-export { schema };
+export default schema;

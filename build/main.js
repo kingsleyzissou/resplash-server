@@ -273,6 +273,101 @@ const reporter = ({
 
 /***/ }),
 
+/***/ "./src/models/user/index.js":
+/*!**********************************!*\
+  !*** ./src/models/user/index.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model */ "./src/models/user/model.js");
+
+/* harmony default export */ __webpack_exports__["default"] = (_model__WEBPACK_IMPORTED_MODULE_0__["default"]);
+
+/***/ }),
+
+/***/ "./src/models/user/model.js":
+/*!**********************************!*\
+  !*** ./src/models/user/model.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var bcrypt__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bcrypt */ "bcrypt");
+/* harmony import */ var bcrypt__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bcrypt__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./schema */ "./src/models/user/schema.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+
+
+
+ // Perform the following function before updating
+// the user in the database. Check if the password has
+// been modified, if so, hash the password before
+// saving.
+// eslint-disable-next-line
+
+_schema__WEBPACK_IMPORTED_MODULE_2__["default"].pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  const hash = await bcrypt__WEBPACK_IMPORTED_MODULE_1___default.a.hash(this.password, 10).catch(err => next(err));
+  this.password = hash;
+  return next();
+}); // Validate the user password
+
+_schema__WEBPACK_IMPORTED_MODULE_2__["default"].methods.verifyPassword = async (cipher, plain) => {
+  const comparison = await bcrypt__WEBPACK_IMPORTED_MODULE_1___default.a.compare(plain, cipher).catch(err => {
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_3__["Tantrum"](500, err);
+  });
+  return comparison;
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('user', _schema__WEBPACK_IMPORTED_MODULE_2__["default"]));
+
+/***/ }),
+
+/***/ "./src/models/user/schema.js":
+/*!***********************************!*\
+  !*** ./src/models/user/schema.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  username: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  created_at: Date,
+  updated_at: Date
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
 /***/ "./src/routes/index.js":
 /*!*****************************!*\
   !*** ./src/routes/index.js ***!
@@ -284,6 +379,8 @@ const reporter = ({
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _middleware_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/middleware/errors */ "./src/middleware/errors/index.js");
 /* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+/* harmony import */ var _services_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/services/auth */ "./src/services/auth/index.js");
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = (router => {
@@ -296,6 +393,18 @@ __webpack_require__.r(__webpack_exports__);
 
   router.get('/error', () => {
     throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, 'some error');
+  });
+  router.post('/login', async (req, res, next) => {
+    const {
+      username,
+      password
+    } = req.body;
+    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["login"])(username, password).catch(err => next(err));
+    res.status(200).send(response);
+  });
+  router.post('/register', async (req, res, next) => {
+    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["register"])(req.body).catch(err => next(err));
+    res.status(200).send(response);
   }); // Last route to catch 404 endpoints
 
   router.use((req, res, next) => {
@@ -345,6 +454,119 @@ __webpack_require__.r(__webpack_exports__);
 
   return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_3__["default"])(router));
 });
+
+/***/ }),
+
+/***/ "./src/services/auth/generateJWT.js":
+/*!******************************************!*\
+  !*** ./src/services/auth/generateJWT.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsonwebtoken */ "jsonwebtoken");
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jsonwebtoken__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/config */ "./src/config/index.js");
+
+
+
+const generateJWT = user => jsonwebtoken__WEBPACK_IMPORTED_MODULE_0___default.a.sign(user.toJSON(), _config__WEBPACK_IMPORTED_MODULE_1__["default"].jwtSecret);
+
+/* harmony default export */ __webpack_exports__["default"] = (generateJWT);
+
+/***/ }),
+
+/***/ "./src/services/auth/index.js":
+/*!************************************!*\
+  !*** ./src/services/auth/index.js ***!
+  \************************************/
+/*! exports provided: login, register */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _login__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./login */ "./src/services/auth/login.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "login", function() { return _login__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _register__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./register */ "./src/services/auth/register.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "register", function() { return _register__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+
+
+
+
+/***/ }),
+
+/***/ "./src/services/auth/login.js":
+/*!************************************!*\
+  !*** ./src/services/auth/login.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/user */ "./src/models/user/index.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+/* harmony import */ var _generateJWT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./generateJWT */ "./src/services/auth/generateJWT.js");
+
+
+
+
+const login = async (username, password) => {
+  const user = await _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
+    username
+  }).catch(err => {
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, err);
+  });
+  if (!user) throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](404, 'User not found');
+  const verified = await user.verifyPassword(user.password, password);
+  if (!verified) throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](403, 'Username or password incorrect');
+  return {
+    user,
+    token: Object(_generateJWT__WEBPACK_IMPORTED_MODULE_2__["default"])(user)
+  };
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (login);
+
+/***/ }),
+
+/***/ "./src/services/auth/register.js":
+/*!***************************************!*\
+  !*** ./src/services/auth/register.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/user */ "./src/models/user/index.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+
+
+
+const register = async body => {
+  const {
+    username,
+    name,
+    password,
+    email
+  } = body;
+  const user = new _models_user__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    username,
+    name,
+    password,
+    email
+  });
+  user.save().catch(err => {
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, err);
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (register);
 
 /***/ }),
 
@@ -436,6 +658,17 @@ module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-serv
 
 /***/ }),
 
+/***/ "bcrypt":
+/*!*************************!*\
+  !*** external "bcrypt" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("bcrypt");
+
+/***/ }),
+
 /***/ "body-parser":
 /*!******************************!*\
   !*** external "body-parser" ***!
@@ -488,6 +721,17 @@ module.exports = require("express");
 /***/ (function(module, exports) {
 
 module.exports = require("helmet");
+
+/***/ }),
+
+/***/ "jsonwebtoken":
+/*!*******************************!*\
+  !*** external "jsonwebtoken" ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("jsonwebtoken");
 
 /***/ }),
 
