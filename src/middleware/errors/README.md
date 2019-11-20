@@ -1,6 +1,4 @@
-# Resplash-server routes
-Error handling middleware.
-
+# Error handling
 The handler function is responsible for
 catching all errors and sending the error code
 and response.
