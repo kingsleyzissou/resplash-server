@@ -103,18 +103,51 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var helmet__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(helmet__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! body-parser */ "body-parser");
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = (app => {
+
+/* harmony default export */ __webpack_exports__["default"] = (express => {
+  const app = express();
+  const router = express.Router();
   app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()());
   app.use(helmet__WEBPACK_IMPORTED_MODULE_1___default()());
   app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.urlencoded({
     extended: true
   }));
-  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json());
-  return app;
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json()); // this statement is last
+  // so error handling can be
+  // applied
+
+  return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_3__["default"])(router));
 });
+
+/***/ }),
+
+/***/ "./src/config/index.js":
+/*!*****************************!*\
+  !*** ./src/config/index.js ***!
+  \*****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(__dirname) {/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var dotenv__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! dotenv */ "dotenv");
+/* harmony import */ var dotenv__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(dotenv__WEBPACK_IMPORTED_MODULE_1__);
+
+
+dotenv__WEBPACK_IMPORTED_MODULE_1___default.a.config();
+/* harmony default export */ __webpack_exports__["default"] = ({
+  port: process.env.APP_PORT || 4000,
+  root: path__WEBPACK_IMPORTED_MODULE_0___default.a.resolve(__dirname, '../', '../'),
+  db: process.env.DB_HOST,
+  jwtSecret: process.env.JWT_SECRET
+});
+/* WEBPACK VAR INJECTION */}.call(this, "src/config"))
 
 /***/ }),
 
@@ -130,14 +163,140 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/app */ "./src/app.js");
-/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/config */ "./src/config/index.js");
+/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
 
 
 
-const server = Object(_app__WEBPACK_IMPORTED_MODULE_1__["default"])(express__WEBPACK_IMPORTED_MODULE_0___default()());
-const port = 3000;
+ // Prepare the server
+
+const server = Object(_app__WEBPACK_IMPORTED_MODULE_1__["default"])(express__WEBPACK_IMPORTED_MODULE_0___default.a); // Get the server port
+
+const {
+  port
+} = _config__WEBPACK_IMPORTED_MODULE_2__["default"]; // Start the server
+
 server.listen(port, () => {
-  _utilities_logger__WEBPACK_IMPORTED_MODULE_2__["default"].info(`App started on http://localhost:${port}`);
+  _utilities_logger__WEBPACK_IMPORTED_MODULE_3__["default"].info(`App started on http://localhost:${port}`);
+});
+
+/***/ }),
+
+/***/ "./src/middleware/errors/handler.js":
+/*!******************************************!*\
+  !*** ./src/middleware/errors/handler.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// last method in the stack to catch
+// all errors and send the status cod
+// and error message
+// eslint-disable-next-line
+const handler = ({
+  message,
+  status
+}, req, res, next) => {
+  res.send({
+    message,
+    status
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (handler);
+
+/***/ }),
+
+/***/ "./src/middleware/errors/index.js":
+/*!****************************************!*\
+  !*** ./src/middleware/errors/index.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _handler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler */ "./src/middleware/errors/handler.js");
+/* harmony import */ var _reporter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./reporter */ "./src/middleware/errors/reporter.js");
+
+ // export the two functions in
+// a single object
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  reporter: _reporter__WEBPACK_IMPORTED_MODULE_1__["default"],
+  handler: _handler__WEBPACK_IMPORTED_MODULE_0__["default"]
+});
+
+/***/ }),
+
+/***/ "./src/middleware/errors/reporter.js":
+/*!*******************************************!*\
+  !*** ./src/middleware/errors/reporter.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utilities_logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/utilities/logger */ "./src/utilities/logger.js");
+/* harmony import */ var _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities/tantrum */ "./src/utilities/tantrum.js");
+
+ // First method in the error stack
+// catches the error, logs it and
+// passes it down the stack
+
+const reporter = ({
+  message,
+  status
+}, req, res, next) => {
+  // Throw tantrum to be used for error
+  const error = new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](status, message); // Log error
+
+  _utilities_logger__WEBPACK_IMPORTED_MODULE_0__["default"].error(error); // Pass the error on
+
+  next(error);
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (reporter);
+
+/***/ }),
+
+/***/ "./src/routes/index.js":
+/*!*****************************!*\
+  !*** ./src/routes/index.js ***!
+  \*****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _middleware_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/middleware/errors */ "./src/middleware/errors/index.js");
+/* harmony import */ var _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities/tantrum */ "./src/utilities/tantrum.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = (router => {
+  router.get('/', (req, res) => {
+    res.status(200).send({
+      message: 'Hello there'
+    });
+  }); // Throw tantrum to test error
+  // handling
+
+  router.get('/error', () => {
+    throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](500, 'some error');
+  }); // Last route to catch 404 endpoints
+
+  router.use((req, res, next) => {
+    const error = new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_1__["default"](404, 'Not found');
+    next(error);
+  }); // Catch all errors and report
+
+  router.use(_middleware_errors__WEBPACK_IMPORTED_MODULE_0__["default"].reporter); // handle error and send response
+  // return router to be used in server
+
+  return router.use(_middleware_errors__WEBPACK_IMPORTED_MODULE_0__["default"].handler);
 });
 
 /***/ }),
@@ -168,6 +327,27 @@ const logger = Object(winston__WEBPACK_IMPORTED_MODULE_0__["createLogger"])({
   })]
 });
 /* harmony default export */ __webpack_exports__["default"] = (logger);
+
+/***/ }),
+
+/***/ "./src/utilities/tantrum.js":
+/*!**********************************!*\
+  !*** ./src/utilities/tantrum.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+class Tantrum extends Error {
+  constructor(code, message) {
+    super(message);
+    this.status = code;
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (Tantrum);
 
 /***/ }),
 
@@ -205,6 +385,17 @@ module.exports = require("cors");
 
 /***/ }),
 
+/***/ "dotenv":
+/*!*************************!*\
+  !*** external "dotenv" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("dotenv");
+
+/***/ }),
+
 /***/ "express":
 /*!**************************!*\
   !*** external "express" ***!
@@ -224,6 +415,17 @@ module.exports = require("express");
 /***/ (function(module, exports) {
 
 module.exports = require("helmet");
+
+/***/ }),
+
+/***/ "path":
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
 
 /***/ }),
 
