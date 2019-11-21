@@ -158,6 +158,154 @@ const database = {
 
 /***/ }),
 
+/***/ "./src/graphql/resolvers/index.js":
+/*!****************************************!*\
+  !*** ./src/graphql/resolvers/index.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./user */ "./src/graphql/resolvers/user.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ([_user__WEBPACK_IMPORTED_MODULE_0__["default"]]);
+
+/***/ }),
+
+/***/ "./src/graphql/resolvers/user.js":
+/*!***************************************!*\
+  !*** ./src/graphql/resolvers/user.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/user */ "./src/models/user/index.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  Query: {
+    user: async (_, {
+      _id
+    }) => _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findById({
+      _id
+    })
+  }
+});
+
+/***/ }),
+
+/***/ "./src/graphql/schema/aggregator.js":
+/*!******************************************!*\
+  !*** ./src/graphql/schema/aggregator.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./src/graphql/schema/base.js");
+/* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./user */ "./src/graphql/schema/user.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"]]);
+
+/***/ }),
+
+/***/ "./src/graphql/schema/base.js":
+/*!************************************!*\
+  !*** ./src/graphql/schema/base.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  type Query {
+    hello: String
+  }
+
+`);
+
+/***/ }),
+
+/***/ "./src/graphql/schema/index.js":
+/*!*************************************!*\
+  !*** ./src/graphql/schema/index.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _aggregator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./aggregator */ "./src/graphql/schema/aggregator.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = (_aggregator__WEBPACK_IMPORTED_MODULE_1__["default"].map(s => s(apollo_server_express__WEBPACK_IMPORTED_MODULE_0__["gql"])));
+
+/***/ }),
+
+/***/ "./src/graphql/schema/user.js":
+/*!************************************!*\
+  !*** ./src/graphql/schema/user.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  extend type Query {
+    user(_id: String): User,
+  }
+
+  type User {
+    _id: String,
+    name: String,
+    username: String,
+    email: String
+  }
+
+`);
+
+/***/ }),
+
+/***/ "./src/graphql/server.js":
+/*!*******************************!*\
+  !*** ./src/graphql/server.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./schema */ "./src/graphql/schema/index.js");
+/* harmony import */ var _resolvers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./resolvers */ "./src/graphql/resolvers/index.js");
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (new apollo_server_express__WEBPACK_IMPORTED_MODULE_0__["ApolloServer"]({
+  introspection: true,
+  typeDefs: _schema__WEBPACK_IMPORTED_MODULE_1__["default"],
+  resolvers: _resolvers__WEBPACK_IMPORTED_MODULE_2__["default"],
+  formatError: error => {
+    const message = error.message.replace('SequelizeValidationError: ', '').replace('Validation error: ', '');
+    return { ...error,
+      message
+    };
+  }
+}));
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -436,19 +584,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! body-parser */ "body-parser");
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
+/* harmony import */ var _graphql_server__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ~/graphql/server */ "./src/graphql/server.js");
+
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = (express => {
   const app = express();
-  const router = express.Router();
-  app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()());
+  const router = express.Router(); // Enable cors
+
+  app.use(cors__WEBPACK_IMPORTED_MODULE_0___default()()); // Help secure the app
+
   app.use(helmet__WEBPACK_IMPORTED_MODULE_1___default()());
   app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.urlencoded({
     extended: true
   }));
-  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json()); // this statement is last
+  app.use(body_parser__WEBPACK_IMPORTED_MODULE_2___default.a.json()); // Add apollo to the stack and provide
+  // grapql route
+  // you can now go to localhost:{port}/graphql
+  // to access the graphql playground
+
+  _graphql_server__WEBPACK_IMPORTED_MODULE_4__["default"].applyMiddleware({
+    app,
+    path: '/graphql'
+  }); // this statement is last
   // so error handling can be
   // applied
 
@@ -655,6 +815,17 @@ class Tantrum extends Error {
 
 module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-server/src/index.js */"./src/index.js");
 
+
+/***/ }),
+
+/***/ "apollo-server-express":
+/*!****************************************!*\
+  !*** external "apollo-server-express" ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("apollo-server-express");
 
 /***/ }),
 
