@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "backpack",
-    "test": "NODE_ENV=test jest --detectOpenHandles",
+    "build": "backpack build",
+    "test": "NODE_ENV=test jest --collect-coverage",
     "test:watch": "NODE_ENV=test jest --watch"
   },
   "repository": {
