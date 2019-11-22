@@ -1,4 +1,5 @@
 import { createLogger, transports, format } from 'winston';
+import config from '~/config';
 
 const { combine, colorize, simple, json } = format;
 
@@ -12,6 +13,7 @@ const logger = createLogger({
         colorize(),
         simple(),
       ),
+      silent: config.env === 'test',
     }),
   ],
 });

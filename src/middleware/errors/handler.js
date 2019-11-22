@@ -3,7 +3,7 @@
 // and error message
 // eslint-disable-next-line
 const handler = ({ message, status }, req, res, next) => {
-  res.send({ message, status });
+  res.status(status).send({ message });
 };
 
 export default handler;

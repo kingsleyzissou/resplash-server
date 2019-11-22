@@ -11,6 +11,12 @@ const database = {
     // Handle errors after initial connection
     mongoose.connection.on('error', (error) => this.report(error));
   },
+  async disconnect() {
+    await mongoose.connection.close();
+  },
+  async reset() {
+    await mongoose.connection.db.dropDatabase();
+  },
   // Report errors
   report(error) {
     logger.error(error);

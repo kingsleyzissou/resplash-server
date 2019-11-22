@@ -1,6 +1,7 @@
 import errors from '~/middleware/errors';
 import { Tantrum } from '~/utilities';
 import { login, register } from '~/services/auth';
+import authenticated from '~/middleware/auth/authenticated';
 
 export default (router) => {
   router.get('/', (req, res) => {
@@ -24,6 +25,10 @@ export default (router) => {
     const response = await register(req.body)
       .catch((err) => next(err));
     res.status(200).send(response);
+  });
+
+  router.get('/protected', authenticated, async (req, res) => {
+    res.status(200).send({ message: 'Cool cool cool' });
   });
 
   // Last route to catch 404 endpoints
