@@ -1,14 +1,13 @@
 import path from 'path';
 import dotenv from 'dotenv';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 dotenv.config();
 
-const test = process.NODE_ENV === 'test';
+const test = process.env.NODE_ENV === 'test';
 
 const connectionString = (!test)
   ? process.env.DB_HOST
-  : new MongoMemoryServer().getConnectionString();
+  : process.env.TEST_DB_HOST;
 
 export default {
   env: process.env.NODE_ENV,
