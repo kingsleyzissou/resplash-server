@@ -18,7 +18,8 @@ jobs:
 
     steps:
       - checkout
-      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP “sh ./deploy.sh”
+      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP
+      - command: ./deploy.sh
 
       # Download and cache dependencies
       - restore_cache:
