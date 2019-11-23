@@ -1,6 +1,6 @@
 {
   "name": "resplash-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Server for resplash client",
   "main": "src/index.js",
   "scripts": {
