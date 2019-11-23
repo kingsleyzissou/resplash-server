@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "backpack",
     "build": "backpack build",
-    "test": "NODE_ENV=test jest --collect-coverage",
+    "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch"
   },
   "repository": {
@@ -30,6 +30,7 @@
     "express": "^4.17.1",
     "helmet": "^3.21.2",
     "jsonwebtoken": "^8.5.1",
+    "mongodb-memory-server": "^6.0.1",
     "mongoose": "^5.7.12",
     "winston": "^3.2.1"
   },

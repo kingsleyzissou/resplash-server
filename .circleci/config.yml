@@ -7,18 +7,21 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:latest
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/mongo:latest
+      - image: circleci/node:10
 
     working_directory: ~/repo
 
     steps:
       - checkout
-      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP "./deploy.sh"
+      - run: 
+          name: "SSH into droplet"
+          command: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP "./deploy.sh"
+
+      # Used for local build
+      # - run: 
+      #     name: "Setup custom environment variables"
+      #     command: |
+      #       echo 'export JWT_SECRET="Test jwt secret"' >> $BASH_ENV 
 
       # Download and cache dependencies
       - restore_cache:

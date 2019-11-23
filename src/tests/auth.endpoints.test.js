@@ -27,7 +27,8 @@ describe('Auth endpoint tests', () => {
   }
 
   beforeAll(async () => {
-    await db.connect(config.db);
+    let host = await config.db.host;  //mongodb memory server returns a promise
+    await db.connect({ host, options: config.db.options });
     existingUser = new User(userData);
     await existingUser.save();
   });
@@ -47,7 +48,7 @@ describe('Auth endpoint tests', () => {
     const authUser = res.body.user;
     expect(authUser._id).toBeDefined();
     done();
-  });
+  }, 30000);
 
   it('Should return correct user for authenticated user', async (done) => {
     const res = await request
@@ -57,7 +58,7 @@ describe('Auth endpoint tests', () => {
     expect(authUser.name).toBe(existingUser.name);
     expect(authUser.email).toBe(existingUser.email);
     done();
-  });
+  }, 30000);
 
   it('Should return correct user for new registrion', async (done) => {
     const res = await request
@@ -65,7 +66,7 @@ describe('Auth endpoint tests', () => {
       .send(newUserData);
     expect(res.status).toBe(200);
     done();
-  });
+  }, 30000);
 
   it('Should allow access to protected endpoint for logged in user', async (done) => {
     const { token } = await login(userData.username, userData.password);
@@ -74,6 +75,6 @@ describe('Auth endpoint tests', () => {
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     done();
-  });
+  }, 30000);
 
 });
