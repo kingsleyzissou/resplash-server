@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt-nodejs';
 import schema from './schema';
 import { Tantrum } from '~/utilities';
 
