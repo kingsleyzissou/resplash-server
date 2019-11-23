@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - checkout
-      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP “deploy.sh”
+      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP “cd /var/www/html && git pull && yarn install && yarn test”
 
       # Download and cache dependencies
       - restore_cache:
