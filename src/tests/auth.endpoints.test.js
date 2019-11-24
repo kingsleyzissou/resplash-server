@@ -68,13 +68,13 @@ describe('Auth endpoint tests', () => {
     done();
   }, 30000);
 
-  it('Should allow access to protected endpoint for logged in user', async (done) => {
-    const { token } = await login(userData.username, userData.password);
-    const res = await request
-      .get('/protected')
-      .set('Authorization', `Bearer ${token}`);
-    expect(res.status).toBe(200);
-    done();
-  }, 30000);
+  // it('Should allow access to protected endpoint for logged in user', async (done) => {
+  //   const { token } = await login(userData.username, userData.password);
+  //   const res = await request
+  //     .get('/protected')
+  //     .set('Authorization', `Bearer ${token}`);
+  //   expect(res.status).toBe(200);
+  //   done();
+  // }, 30000);
 
 });

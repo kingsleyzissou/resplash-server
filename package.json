@@ -7,7 +7,7 @@
     "dev": "backpack",
     "build": "backpack build",
     "test": "NODE_ENV=test jest --collect-coverage",
-    "test:watch": "NODE_ENV=test jest --watch"
+    "test:watch": "NODE_ENV=test jest --collect-coverage=false --watch"
   },
   "repository": {
     "type": "git",
