@@ -442,6 +442,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /* harmony default export */ __webpack_exports__["default"] = (new apollo_server_express__WEBPACK_IMPORTED_MODULE_0__["ApolloServer"]({
   introspection: true,
+  playground: true,
   typeDefs: _schema__WEBPACK_IMPORTED_MODULE_3__["default"],
   resolvers: _resolvers__WEBPACK_IMPORTED_MODULE_2__["default"],
 
