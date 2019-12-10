@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import logger from '~/utilites/logger';
 
 const { Schema } = mongoose;
 
@@ -10,21 +9,13 @@ const schema = new Schema({
   description: {
     type: String,
   },
-  urls: {
-    type: String,
-    get: (data) => JSON.parse(data).catch((err => {
-      logger.error(err);
-      return data;
-    })),
-    set: (data) => JSON.stringify(data),
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'url'
   },
   user: {
-    type: String,
-    get: (data) => JSON.parse(data).catch((err => {
-      logger.error(err);
-      return data;
-    })),
-    set: (data) => JSON.stringify(data),
+    type: Schema.Types.ObjectId,
+    ref: 'artist'
   },
   likes: {
     type: Number,

@@ -3,6 +3,11 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const schema = new Schema({
+  type: {
+    type: String,
+    enum: ['collection', 'comment'],
+    default: 'collection',
+  },
   comment: {
     type: String,
     required: true,
