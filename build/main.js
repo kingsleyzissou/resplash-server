@@ -177,6 +177,53 @@ const database = {
 
 /***/ }),
 
+/***/ "./src/graphql/resolvers/collection.js":
+/*!*********************************************!*\
+  !*** ./src/graphql/resolvers/collection.js ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_collection__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/collection */ "./src/models/collection/index.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  Query: {
+    collection: async (_, {
+      _id
+    }, {
+      user
+    }) => {
+      if (!user) return null;
+      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findById({
+        _id
+      });
+    },
+    collections: async (_, args, {
+      user
+    }) => {
+      if (!user) return null;
+      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].find({
+        user: {
+          _id: user._id
+        }
+      });
+    }
+  },
+  Mutation: {
+    addCollection: async (_, {
+      collection
+    }) => {
+      // eslint-disable-next-line
+      console.log(collection);
+      return collection;
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./src/graphql/resolvers/index.js":
 /*!****************************************!*\
   !*** ./src/graphql/resolvers/index.js ***!
@@ -187,8 +234,10 @@ const database = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./user */ "./src/graphql/resolvers/user.js");
+/* harmony import */ var _collection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./collection */ "./src/graphql/resolvers/collection.js");
 
-/* harmony default export */ __webpack_exports__["default"] = ([_user__WEBPACK_IMPORTED_MODULE_0__["default"]]);
+
+/* harmony default export */ __webpack_exports__["default"] = ([_user__WEBPACK_IMPORTED_MODULE_0__["default"], _collection__WEBPACK_IMPORTED_MODULE_1__["default"]]);
 
 /***/ }),
 
@@ -234,12 +283,70 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _collection__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./collection */ "./src/graphql/schema/collection.js");
 /* harmony import */ var _image__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./image */ "./src/graphql/schema/image.js");
 /* harmony import */ var _comment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./comment */ "./src/graphql/schema/comment.js");
+/* harmony import */ var _artist__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./artist */ "./src/graphql/schema/artist.js");
+/* harmony import */ var _avatar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./avatar */ "./src/graphql/schema/avatar.js");
+/* harmony import */ var _urls__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./urls */ "./src/graphql/schema/urls.js");
 
 
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"]]);
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _urls__WEBPACK_IMPORTED_MODULE_7__["default"]]);
+
+/***/ }),
+
+/***/ "./src/graphql/schema/artist.js":
+/*!**************************************!*\
+  !*** ./src/graphql/schema/artist.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  type Artist {
+    id: String,
+    name: String,
+    profile_image: Avatar,
+    username: String,
+  }
+
+  input ArtistInput {
+    id: String,
+    name: String,
+    profile_image: AvatarInput,
+    username: String,
+  }
+
+`);
+
+/***/ }),
+
+/***/ "./src/graphql/schema/avatar.js":
+/*!**************************************!*\
+  !*** ./src/graphql/schema/avatar.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  type Avatar {
+    medium: String,
+  }
+
+  input AvatarInput {
+    medium: String,
+  }
+
+`);
 
 /***/ }),
 
@@ -256,6 +363,10 @@ __webpack_require__.r(__webpack_exports__);
 
   type Query {
     hello: String
+  }
+
+  type Mutation {
+    sayHello(name: String!): String!
   }
 
 `);
@@ -278,6 +389,10 @@ __webpack_require__.r(__webpack_exports__);
     collections: [Collection],
   }
 
+  extend type Mutation {
+    addCollection(collection: CollectionInput): Collection
+  }
+
   type Collection {
     _id: String,
     name: String,
@@ -286,6 +401,16 @@ __webpack_require__.r(__webpack_exports__);
     user: User,
     images: [Image],
     comments: [Comment],
+    likes: Int,
+  }
+
+  input CollectionInput {
+    name: String,
+    subtitle: String,
+    description: String,
+    user: UserInput,
+    images: [ImageInput],
+    comments: [CommentInput],
     likes: Int,
   }
 
@@ -322,6 +447,13 @@ __webpack_require__.r(__webpack_exports__);
     likes: Int,
   }
 
+  input CommentInput {
+    type: CommentType,
+    subcomments: [CommentInput],
+    user: UserInput,
+    likes: Int,
+  }
+
 `);
 
 /***/ }),
@@ -351,20 +483,12 @@ __webpack_require__.r(__webpack_exports__);
     likes: Int,
   }
 
-  type Artist {
-    id: String,
-    name: String,
-    profile_image: Avatar,
-    username: String,
-  }
-
-  type Urls {
-    full: String,
-    regular: String,
-  }
-
-  type Avatar {
-    medium: String,
+  input ImageInput {
+    description: String,
+    alt_description: String,
+    user: ArtistInput,
+    urls: UrlsInput,
+    likes: Int,
   }
 
 `);
@@ -389,6 +513,31 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/graphql/schema/urls.js":
+/*!************************************!*\
+  !*** ./src/graphql/schema/urls.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  type Urls {
+    full: String,
+    regular: String,
+  }
+
+  input UrlsInput {
+    full: String,
+    regular: String,
+  }
+
+`);
+
+/***/ }),
+
 /***/ "./src/graphql/schema/user.js":
 /*!************************************!*\
   !*** ./src/graphql/schema/user.js ***!
@@ -410,6 +559,13 @@ __webpack_require__.r(__webpack_exports__);
     username: String,
     email: String,
     collections: [Collection],
+  }
+
+  input UserInput {
+    name: String,
+    username: String,
+    email: String,
+    collections: [CollectionInput],
   }
 
 `);
@@ -446,14 +602,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   typeDefs: _schema__WEBPACK_IMPORTED_MODULE_3__["default"],
   resolvers: _resolvers__WEBPACK_IMPORTED_MODULE_2__["default"],
 
-  context({
+  async context({
     req
   }) {
     const token = Object(_middleware_auth__WEBPACK_IMPORTED_MODULE_1__["getToken"])(req.headers);
     return {
       user: Object(_middleware_auth__WEBPACK_IMPORTED_MODULE_1__["authenticated"])({
         token
-      }) ? Object(_middleware_auth__WEBPACK_IMPORTED_MODULE_1__["getTokenUser"])({
+      }) ? Object(_middleware_auth__WEBPACK_IMPORTED_MODULE_1__["authenticated"])({
         token
       }) : null
     };
@@ -554,35 +710,11 @@ const getToken = ({
 
 /***/ }),
 
-/***/ "./src/middleware/auth/getTokenUser.js":
-/*!*********************************************!*\
-  !*** ./src/middleware/auth/getTokenUser.js ***!
-  \*********************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/user */ "./src/models/user/index.js");
-
-/* harmony default export */ __webpack_exports__["default"] = (async ({
-  token
-}) => {
-  const {
-    _id
-  } = token;
-  return _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
-    _id
-  });
-});
-
-/***/ }),
-
 /***/ "./src/middleware/auth/index.js":
 /*!**************************************!*\
   !*** ./src/middleware/auth/index.js ***!
   \**************************************/
-/*! exports provided: authenticated, getTokenUser, getToken */
+/*! exports provided: authenticated, getToken */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -590,12 +722,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _authenticated__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./authenticated */ "./src/middleware/auth/authenticated.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "authenticated", function() { return _authenticated__WEBPACK_IMPORTED_MODULE_0__["default"]; });
 
-/* harmony import */ var _getTokenUser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getTokenUser */ "./src/middleware/auth/getTokenUser.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getTokenUser", function() { return _getTokenUser__WEBPACK_IMPORTED_MODULE_1__["default"]; });
-
-/* harmony import */ var _getToken__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./getToken */ "./src/middleware/auth/getToken.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getToken", function() { return _getToken__WEBPACK_IMPORTED_MODULE_2__["default"]; });
-
+/* harmony import */ var _getToken__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./getToken */ "./src/middleware/auth/getToken.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getToken", function() { return _getToken__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
 
 
@@ -678,6 +806,89 @@ const reporter = ({
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (reporter);
+
+/***/ }),
+
+/***/ "./src/models/collection/index.js":
+/*!****************************************!*\
+  !*** ./src/models/collection/index.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model */ "./src/models/collection/model.js");
+
+/* harmony default export */ __webpack_exports__["default"] = (_model__WEBPACK_IMPORTED_MODULE_0__["default"]);
+
+/***/ }),
+
+/***/ "./src/models/collection/model.js":
+/*!****************************************!*\
+  !*** ./src/models/collection/model.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./schema */ "./src/models/collection/schema.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('collection', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
+
+/***/ }),
+
+/***/ "./src/models/collection/schema.js":
+/*!*****************************************!*\
+  !*** ./src/models/collection/schema.js ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  subtitle: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  images: [{
+    type: Schema.Types.ObjectId,
+    ref: 'image'
+  }],
+  subcomments: [{
+    type: Schema.Types.ObjectId,
+    required: 'comment'
+  }],
+  likes: {
+    type: Number,
+    default: 0
+  },
+  created_at: Date,
+  updated_at: Date
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
 
 /***/ }),
 
@@ -805,10 +1016,10 @@ __webpack_require__.r(__webpack_exports__);
   });
   router.post('/login', async (req, res, next) => {
     const {
-      username,
+      email,
       password
     } = req.body;
-    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["login"])(username, password).catch(err => next(err));
+    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["login"])(email, password).catch(err => next(err));
     res.status(200).send(response);
   });
   router.post('/register', async (req, res, next) => {
@@ -942,9 +1153,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const login = async (username, password) => {
+const login = async (email, password) => {
   const user = await _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
-    username
+    email
   }).catch(err => {
     throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, err);
   });

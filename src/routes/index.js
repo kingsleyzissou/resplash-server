@@ -15,8 +15,8 @@ export default (router) => {
   });
 
   router.post('/login', async (req, res, next) => {
-    const { username, password } = req.body;
-    const response = await login(username, password)
+    const { email, password } = req.body;
+    const response = await login(email, password)
       .catch((err) => next(err));
     res.status(200).send(response);
   });

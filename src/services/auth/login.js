@@ -2,8 +2,8 @@ import User from '~/models/user';
 import { Tantrum } from '~/utilities';
 import generateJWT from './generateJWT';
 
-const login = async (username, password) => {
-  const user = await User.findOne({ username })
+const login = async (email, password) => {
+  const user = await User.findOne({ email })
     .catch((err) => {
       throw new Tantrum(500, err);
     });

@@ -18,4 +18,11 @@ export default (gql) => gql`
     likes: Int,
   }
 
+  input CommentInput {
+    type: CommentType,
+    subcomments: [CommentInput],
+    user: UserInput,
+    likes: Int,
+  }
+
 `;

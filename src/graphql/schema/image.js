@@ -14,20 +14,12 @@ export default (gql) => gql`
     likes: Int,
   }
 
-  type Artist {
-    id: String,
-    name: String,
-    profile_image: Avatar,
-    username: String,
-  }
-
-  type Urls {
-    full: String,
-    regular: String,
-  }
-
-  type Avatar {
-    medium: String,
+  input ImageInput {
+    description: String,
+    alt_description: String,
+    user: ArtistInput,
+    urls: UrlsInput,
+    likes: Int,
   }
 
 `;

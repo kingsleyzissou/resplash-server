@@ -1,5 +1,5 @@
 import { ApolloServer } from 'apollo-server-express';
-import { authenticated, getToken, getTokenUser } from '~/middleware/auth';
+import { authenticated, getToken } from '~/middleware/auth';
 import resolvers from './resolvers';
 import typeDefs from './schema';
 
@@ -8,11 +8,11 @@ export default new ApolloServer({
   playground: true,
   typeDefs,
   resolvers,
-  context({ req }) {
+  async context({ req }) {
     const token = getToken(req.headers);
     return {
       user: (authenticated({ token }))
-        ? getTokenUser({ token })
+        ? authenticated({ token })
         : null,
     };
   },

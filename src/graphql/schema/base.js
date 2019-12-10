@@ -4,4 +4,8 @@ export default (gql) => gql`
     hello: String
   }
 
+  type Mutation {
+    sayHello(name: String!): String!
+  }
+
 `;

@@ -5,6 +5,10 @@ export default (gql) => gql`
     collections: [Collection],
   }
 
+  extend type Mutation {
+    addCollection(collection: CollectionInput): Collection
+  }
+
   type Collection {
     _id: String,
     name: String,
@@ -13,6 +17,16 @@ export default (gql) => gql`
     user: User,
     images: [Image],
     comments: [Comment],
+    likes: Int,
+  }
+
+  input CollectionInput {
+    name: String,
+    subtitle: String,
+    description: String,
+    user: UserInput,
+    images: [ImageInput],
+    comments: [CommentInput],
     likes: Int,
   }
 
