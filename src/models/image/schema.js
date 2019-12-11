@@ -1,8 +1,13 @@
 import mongoose from 'mongoose';
+import ArtistSchema from '../artist/schema';
+import UrlSchema from '../url/schema';
 
 const { Schema } = mongoose;
 
 const schema = new Schema({
+  id: {
+    type: String,
+  },
   alt_description: {
     type: String,
   },
@@ -10,12 +15,12 @@ const schema = new Schema({
     type: String,
   },
   user: {
-    type: Schema.Types.ObjectId,
-    ref: 'url'
+    type: ArtistSchema,
+    required: true,
   },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'artist'
+  urls: {
+    type: UrlSchema,
+    required: true,
   },
   likes: {
     type: Number,

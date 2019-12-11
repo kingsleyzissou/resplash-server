@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import ImageSchema from '../image/schema';
+import CommentSchema from '../comment/schema';
 
 const { Schema } = mongoose;
 
@@ -19,12 +21,12 @@ const schema = new Schema({
     ref: 'user',
   },
   images: [{
-    type: Schema.Types.ObjectId,
-    ref: 'image',
+    type: ImageSchema,
+    default: [],
   }],
-  subcomments: [{
-    type: Schema.Types.ObjectId,
-    required: 'comment',
+  comment: [{
+    type: CommentSchema,
+    default: [],
   }],
   likes: {
     type: Number,

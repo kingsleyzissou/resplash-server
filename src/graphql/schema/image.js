@@ -1,7 +1,7 @@
 export default (gql) => gql`
 
   extend type Query {
-    image(_id: String): Image,
+    image(id: String): Image,
     images: [Image],
   }
 
@@ -10,15 +10,16 @@ export default (gql) => gql`
     description: String,
     alt_description: String,
     user: Artist,
-    urls: Urls,
+    urls: Url,
     likes: Int,
   }
 
   input ImageInput {
+    id: String,
     description: String,
     alt_description: String,
     user: ArtistInput,
-    urls: UrlsInput,
+    urls: UrlInput,
     likes: Int,
   }
 

@@ -187,6 +187,16 @@ const database = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_collection__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/collection */ "./src/models/collection/index.js");
+/* harmony import */ var _models_image__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/models/image */ "./src/models/image/index.js");
+/* harmony import */ var _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/utilities/tantrum */ "./src/utilities/tantrum.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   Query: {
@@ -213,10 +223,39 @@ __webpack_require__.r(__webpack_exports__);
   },
   Mutation: {
     addCollection: async (_, {
-      collection
+      input
     }) => {
-      // eslint-disable-next-line
-      console.log(collection);
+      const collection = new _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"](_objectSpread({}, input));
+      await collection.save().catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+      return collection;
+    },
+    addImage: async (_, {
+      _id,
+      input
+    }) => {
+      const image = new _models_image__WEBPACK_IMPORTED_MODULE_1__["default"](_objectSpread({}, input));
+      const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
+        _id
+      }).catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+      collection.images.push(image);
+      collection.save();
+      return collection;
+    },
+    removeImage: async (_, {
+      _id,
+      image
+    }) => {
+      const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
+        _id
+      }).catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+      collection.images.pull(image);
+      collection.save();
       return collection;
     }
   }
@@ -285,7 +324,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _comment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./comment */ "./src/graphql/schema/comment.js");
 /* harmony import */ var _artist__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./artist */ "./src/graphql/schema/artist.js");
 /* harmony import */ var _avatar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./avatar */ "./src/graphql/schema/avatar.js");
-/* harmony import */ var _urls__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./urls */ "./src/graphql/schema/urls.js");
+/* harmony import */ var _url__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./url */ "./src/graphql/schema/url.js");
 
 
 
@@ -294,7 +333,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _urls__WEBPACK_IMPORTED_MODULE_7__["default"]]);
+/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _url__WEBPACK_IMPORTED_MODULE_7__["default"]]);
 
 /***/ }),
 
@@ -390,7 +429,9 @@ __webpack_require__.r(__webpack_exports__);
   }
 
   extend type Mutation {
-    addCollection(collection: CollectionInput): Collection
+    addCollection(collection: CollectionInput): Collection,
+    addImage(_id: String, input: ImageInput): Collection,
+    removeImage(_id: String, image: String): Collection,
   }
 
   type Collection {
@@ -408,7 +449,7 @@ __webpack_require__.r(__webpack_exports__);
     name: String,
     subtitle: String,
     description: String,
-    user: UserInput,
+    user: String,
     images: [ImageInput],
     comments: [CommentInput],
     likes: Int,
@@ -450,7 +491,7 @@ __webpack_require__.r(__webpack_exports__);
   input CommentInput {
     type: CommentType,
     subcomments: [CommentInput],
-    user: UserInput,
+    user: String,
     likes: Int,
   }
 
@@ -470,7 +511,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (gql => gql`
 
   extend type Query {
-    image(_id: String): Image,
+    image(id: String): Image,
     images: [Image],
   }
 
@@ -479,15 +520,16 @@ __webpack_require__.r(__webpack_exports__);
     description: String,
     alt_description: String,
     user: Artist,
-    urls: Urls,
+    urls: Url,
     likes: Int,
   }
 
   input ImageInput {
+    id: String,
     description: String,
     alt_description: String,
     user: ArtistInput,
-    urls: UrlsInput,
+    urls: UrlInput,
     likes: Int,
   }
 
@@ -513,10 +555,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/graphql/schema/urls.js":
-/*!************************************!*\
-  !*** ./src/graphql/schema/urls.js ***!
-  \************************************/
+/***/ "./src/graphql/schema/url.js":
+/*!***********************************!*\
+  !*** ./src/graphql/schema/url.js ***!
+  \***********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -524,12 +566,12 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (gql => gql`
 
-  type Urls {
+  type Url {
     full: String,
     regular: String,
   }
 
-  input UrlsInput {
+  input UrlInput {
     full: String,
     regular: String,
   }
@@ -559,13 +601,6 @@ __webpack_require__.r(__webpack_exports__);
     username: String,
     email: String,
     collections: [Collection],
-  }
-
-  input UserInput {
-    name: String,
-    username: String,
-    email: String,
-    collections: [CollectionInput],
   }
 
 `);
@@ -809,6 +844,69 @@ const reporter = ({
 
 /***/ }),
 
+/***/ "./src/models/artist/schema.js":
+/*!*************************************!*\
+  !*** ./src/models/artist/schema.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _avatar_schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../avatar/schema */ "./src/models/avatar/schema.js");
+
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  id: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  username: {
+    type: String,
+    required: true
+  },
+  profile_image: {
+    type: _avatar_schema__WEBPACK_IMPORTED_MODULE_1__["default"]
+  }
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
+/***/ "./src/models/avatar/schema.js":
+/*!*************************************!*\
+  !*** ./src/models/avatar/schema.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  medium: {
+    type: String,
+    required: true
+  }
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
 /***/ "./src/models/collection/index.js":
 /*!****************************************!*\
   !*** ./src/models/collection/index.js ***!
@@ -853,6 +951,10 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _image_schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../image/schema */ "./src/models/image/schema.js");
+/* harmony import */ var _comment_schema__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../comment/schema */ "./src/models/comment/schema.js");
+
+
 
 const {
   Schema
@@ -874,16 +976,173 @@ const schema = new Schema({
     ref: 'user'
   },
   images: [{
-    type: Schema.Types.ObjectId,
-    ref: 'image'
+    type: _image_schema__WEBPACK_IMPORTED_MODULE_1__["default"],
+    default: []
   }],
-  subcomments: [{
-    type: Schema.Types.ObjectId,
-    required: 'comment'
+  comment: [{
+    type: _comment_schema__WEBPACK_IMPORTED_MODULE_2__["default"],
+    default: []
   }],
   likes: {
     type: Number,
     default: 0
+  },
+  created_at: Date,
+  updated_at: Date
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
+/***/ "./src/models/comment/schema.js":
+/*!**************************************!*\
+  !*** ./src/models/comment/schema.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  type: {
+    type: String,
+    enum: ['collection', 'comment'],
+    default: 'collection'
+  },
+  comment: {
+    type: String,
+    required: true
+  },
+  subcomments: [{
+    type: Schema.Types.ObjectId,
+    required: 'comment'
+  }],
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  likes: {
+    type: Number,
+    default: 0
+  },
+  created_at: Date,
+  updated_at: Date
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
+/***/ "./src/models/image/index.js":
+/*!***********************************!*\
+  !*** ./src/models/image/index.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model */ "./src/models/image/model.js");
+
+/* harmony default export */ __webpack_exports__["default"] = (_model__WEBPACK_IMPORTED_MODULE_0__["default"]);
+
+/***/ }),
+
+/***/ "./src/models/image/model.js":
+/*!***********************************!*\
+  !*** ./src/models/image/model.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./schema */ "./src/models/image/schema.js");
+
+
+/* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('image', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
+
+/***/ }),
+
+/***/ "./src/models/image/schema.js":
+/*!************************************!*\
+  !*** ./src/models/image/schema.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _artist_schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../artist/schema */ "./src/models/artist/schema.js");
+/* harmony import */ var _url_schema__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../url/schema */ "./src/models/url/schema.js");
+
+
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  id: {
+    type: String
+  },
+  alt_description: {
+    type: String
+  },
+  description: {
+    type: String
+  },
+  user: {
+    type: _artist_schema__WEBPACK_IMPORTED_MODULE_1__["default"],
+    required: true
+  },
+  urls: {
+    type: _url_schema__WEBPACK_IMPORTED_MODULE_2__["default"],
+    required: true
+  },
+  likes: {
+    type: Number,
+    default: 0
+  },
+  created_at: Date,
+  updated_at: Date
+});
+/* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
+/***/ "./src/models/url/schema.js":
+/*!**********************************!*\
+  !*** ./src/models/url/schema.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const {
+  Schema
+} = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a;
+const schema = new Schema({
+  medium: {
+    type: String
+  },
+  regular: {
+    type: String
+  },
+  full: {
+    type: String
   },
   created_at: Date,
   updated_at: Date
@@ -978,7 +1237,8 @@ const schema = new Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false
   },
   created_at: Date,
   updated_at: Date
@@ -1156,7 +1416,7 @@ __webpack_require__.r(__webpack_exports__);
 const login = async (email, password) => {
   const user = await _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
     email
-  }).catch(err => {
+  }).select('+password').exec().catch(err => {
     throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, err);
   });
   if (!user) throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](404, 'User not found');

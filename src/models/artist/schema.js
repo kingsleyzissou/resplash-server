@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import AvatarSchema from '../avatar/schema';
 
 const { Schema } = mongoose;
 
@@ -16,9 +17,8 @@ const schema = new Schema({
     required: true,
   },
   profile_image: {
-    type: Schema.Types.ObjectId,
-    ref: 'url',
-  }
+    type: AvatarSchema,
+  },
 });
 
 export default schema;

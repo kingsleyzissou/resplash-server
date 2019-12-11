@@ -21,7 +21,7 @@ export default (gql) => gql`
   input CommentInput {
     type: CommentType,
     subcomments: [CommentInput],
-    user: UserInput,
+    user: String,
     likes: Int,
   }
 

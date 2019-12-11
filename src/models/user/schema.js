@@ -17,6 +17,7 @@ const schema = new Schema({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   created_at: Date,
   updated_at: Date,

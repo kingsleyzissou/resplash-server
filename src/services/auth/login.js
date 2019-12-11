@@ -3,7 +3,10 @@ import { Tantrum } from '~/utilities';
 import generateJWT from './generateJWT';
 
 const login = async (email, password) => {
-  const user = await User.findOne({ email })
+  const user = await User
+    .findOne({ email })
+    .select('+password')
+    .exec()
     .catch((err) => {
       throw new Tantrum(500, err);
     });

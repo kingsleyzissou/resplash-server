@@ -5,6 +5,6 @@ import image from './image';
 import comment from './comment';
 import artist from './artist';
 import avatar from './avatar';
-import urls from './urls';
+import url from './url';
 
-export default [base, user, collection, image, comment, avatar, artist, urls];
+export default [base, user, collection, image, comment, avatar, artist, url];

@@ -1,11 +1,11 @@
 export default (gql) => gql`
 
-  type Urls {
+  type Url {
     full: String,
     regular: String,
   }
 
-  input UrlsInput {
+  input UrlInput {
     full: String,
     regular: String,
   }

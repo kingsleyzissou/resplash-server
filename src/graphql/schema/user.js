@@ -12,11 +12,4 @@ export default (gql) => gql`
     collections: [Collection],
   }
 
-  input UserInput {
-    name: String,
-    username: String,
-    email: String,
-    collections: [CollectionInput],
-  }
-
 `;

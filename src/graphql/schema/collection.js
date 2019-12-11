@@ -6,7 +6,9 @@ export default (gql) => gql`
   }
 
   extend type Mutation {
-    addCollection(collection: CollectionInput): Collection
+    addCollection(collection: CollectionInput): Collection,
+    addImage(_id: String, input: ImageInput): Collection,
+    removeImage(_id: String, image: String): Collection,
   }
 
   type Collection {
@@ -24,7 +26,7 @@ export default (gql) => gql`
     name: String,
     subtitle: String,
     description: String,
-    user: UserInput,
+    user: String,
     images: [ImageInput],
     comments: [CommentInput],
     likes: Int,
