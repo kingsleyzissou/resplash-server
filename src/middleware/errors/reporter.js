@@ -7,7 +7,7 @@ const reporter = ({ message, status }, req, res, next) => {
   // Throw tantrum to be used for error
   const error = new Tantrum(status, message);
   // Log error
-  logger.error(error);
+  logger.error(message);
   // Pass the error on
   next(error);
 };

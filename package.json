@@ -21,6 +21,7 @@
   "homepage": "https://github.com/kingsleyzissou/resplash-server#readme",
   "dependencies": {
     "@babel/core": "^7.7.2",
+    "@hapi/joi": "^16.1.8",
     "apollo-server-express": "^2.9.11",
     "backpack-core": "^0.8.4",
     "bcryptjs": "^2.4.3",

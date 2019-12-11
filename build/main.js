@@ -835,12 +835,71 @@ const reporter = ({
   // Throw tantrum to be used for error
   const error = new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](status, message); // Log error
 
-  _utilities__WEBPACK_IMPORTED_MODULE_0__["logger"].error(error); // Pass the error on
+  _utilities__WEBPACK_IMPORTED_MODULE_0__["logger"].error(message); // Pass the error on
 
   next(error);
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (reporter);
+
+/***/ }),
+
+/***/ "./src/middleware/index.js":
+/*!*********************************!*\
+  !*** ./src/middleware/index.js ***!
+  \*********************************/
+/*! exports provided: errors, validate */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./errors */ "./src/middleware/errors/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "errors", function() { return _errors__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _validate__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./validate */ "./src/middleware/validate/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "validate", function() { return _validate__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+
+
+
+
+/***/ }),
+
+/***/ "./src/middleware/validate/index.js":
+/*!******************************************!*\
+  !*** ./src/middleware/validate/index.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// import Joi from '@hapi/joi';
+
+/* harmony default export */ __webpack_exports__["default"] = (schema => (req, res, next) => {
+  const {
+    value,
+    error
+  } = schema.validate(_objectSpread({}, req.body), {
+    abortEarly: false
+  });
+
+  if (error) {
+    const messages = error.details.map(detail => detail.message);
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](401, messages);
+  }
+
+  if (!req.value) req.value = {};
+  req.value.fields = value;
+  next();
+});
 
 /***/ }),
 
@@ -1256,12 +1315,13 @@ const schema = new Schema({
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _middleware_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/middleware/errors */ "./src/middleware/errors/index.js");
-/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+/* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+/* harmony import */ var _middleware__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/middleware */ "./src/middleware/index.js");
 /* harmony import */ var _services_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ~/services/auth */ "./src/services/auth/index.js");
+/* harmony import */ var _validators_registration__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ~/validators/registration */ "./src/validators/registration.js");
 
 
- // import authenticated from '~/middleware/auth/authenticated';
+
 
 /* harmony default export */ __webpack_exports__["default"] = (router => {
   router.get('/', (req, res) => {
@@ -1272,9 +1332,10 @@ __webpack_require__.r(__webpack_exports__);
   // handling
 
   router.get('/error', () => {
-    throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, 'some error');
+    throw new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](500, 'some error');
   });
   router.post('/login', async (req, res, next) => {
+    console.log(req.body);
     const {
       email,
       password
@@ -1282,8 +1343,8 @@ __webpack_require__.r(__webpack_exports__);
     const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["login"])(email, password).catch(err => next(err));
     res.status(200).send(response);
   });
-  router.post('/register', async (req, res, next) => {
-    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["register"])(req.body).catch(err => next(err));
+  router.post('/register', Object(_middleware__WEBPACK_IMPORTED_MODULE_1__["validate"])(_validators_registration__WEBPACK_IMPORTED_MODULE_3__["default"]), async (req, res, next) => {
+    const response = await Object(_services_auth__WEBPACK_IMPORTED_MODULE_2__["register"])(req.value.fields).catch(err => next(err));
     res.status(200).send(response);
   }); // router.get('/protected', authenticated, async (req, res) => {
   //   res.status(200).send({ message: 'Cool cool cool' });
@@ -1291,14 +1352,14 @@ __webpack_require__.r(__webpack_exports__);
   // Last route to catch 404 endpoints
 
   router.use((req, res, next) => {
-    const error = new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](404, 'Not found');
+    const error = new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](404, 'Not found');
     next(error);
   }); // Catch all errors and report
 
-  router.use(_middleware_errors__WEBPACK_IMPORTED_MODULE_0__["default"].reporter); // handle error and send response
+  router.use(_middleware__WEBPACK_IMPORTED_MODULE_1__["errors"].reporter); // handle error and send response
   // return router to be used in server
 
-  return router.use(_middleware_errors__WEBPACK_IMPORTED_MODULE_0__["default"].handler);
+  return router.use(_middleware__WEBPACK_IMPORTED_MODULE_1__["errors"].handler);
 });
 
 /***/ }),
@@ -1414,6 +1475,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const login = async (email, password) => {
+  console.log(email);
   const user = await _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
     email
   }).select('+password').exec().catch(err => {
@@ -1443,16 +1505,18 @@ const login = async (email, password) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/user */ "./src/models/user/index.js");
 /* harmony import */ var _utilities__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/utilities */ "./src/utilities/index.js");
+/* harmony import */ var _generateJWT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./generateJWT */ "./src/services/auth/generateJWT.js");
 
 
 
-const register = async body => {
+
+const register = async fields => {
   const {
     username,
     name,
     password,
     email
-  } = body;
+  } = fields;
   const user = new _models_user__WEBPACK_IMPORTED_MODULE_0__["default"]({
     username,
     name,
@@ -1462,6 +1526,10 @@ const register = async body => {
   user.save().catch(err => {
     throw new _utilities__WEBPACK_IMPORTED_MODULE_1__["Tantrum"](500, err);
   });
+  return {
+    user,
+    token: Object(_generateJWT__WEBPACK_IMPORTED_MODULE_2__["default"])(user)
+  };
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (register);
@@ -1547,6 +1615,41 @@ class Tantrum extends Error {
 
 /***/ }),
 
+/***/ "./src/validators/registration.js":
+/*!****************************************!*\
+  !*** ./src/validators/registration.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _hapi_joi__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @hapi/joi */ "@hapi/joi");
+/* harmony import */ var _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_hapi_joi__WEBPACK_IMPORTED_MODULE_0__);
+
+/* harmony default export */ __webpack_exports__["default"] = (_hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.object({
+  name: _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.string().required().messages({
+    'any.required': 'Name is required'
+  }),
+  username: _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.string().required().messages({
+    'any.required': 'Username is required'
+  }),
+  email: _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.string().email().required().messages({
+    'any.required': 'Email is required',
+    'string.email': 'Must be a valid email address'
+  }),
+  password: _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.string().min(6).required().messages({
+    'any.required': 'Password is required',
+    'string.min': 'Password must be atleast 6 characters'
+  }),
+  confirm: _hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.string().required().valid(_hapi_joi__WEBPACK_IMPORTED_MODULE_0___default.a.ref('password')).messages({
+    'any.required': 'Password confirmation is required',
+    'any.only': 'Passwords must match'
+  })
+}));
+
+/***/ }),
+
 /***/ 0:
 /*!****************************!*\
   !*** multi ./src/index.js ***!
@@ -1556,6 +1659,17 @@ class Tantrum extends Error {
 
 module.exports = __webpack_require__(/*! /Users/zissou/Sites/react/resplash-server/src/index.js */"./src/index.js");
 
+
+/***/ }),
+
+/***/ "@hapi/joi":
+/*!****************************!*\
+  !*** external "@hapi/joi" ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("@hapi/joi");
 
 /***/ }),
 

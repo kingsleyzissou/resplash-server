@@ -1,7 +1,7 @@
-import errors from '~/middleware/errors';
 import { Tantrum } from '~/utilities';
+import { errors, validate } from '~/middleware';
 import { login, register } from '~/services/auth';
-// import authenticated from '~/middleware/auth/authenticated';
+import registration from '~/validators/registration';
 
 export default (router) => {
   router.get('/', (req, res) => {
@@ -21,8 +21,8 @@ export default (router) => {
     res.status(200).send(response);
   });
 
-  router.post('/register', async (req, res, next) => {
-    const response = await register(req.body)
+  router.post('/register', validate(registration), async (req, res, next) => {
+    const response = await register(req.value.fields)
       .catch((err) => next(err));
     res.status(200).send(response);
   });
