@@ -42,7 +42,7 @@ describe('Auth endpoint tests', () => {
     const res = await request
       .post('/login')
       .send({
-        username: userData.username,
+        email: userData.email,
         password: userData.password
       });
     const authUser = res.body.user;
