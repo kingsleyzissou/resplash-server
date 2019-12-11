@@ -231,6 +231,31 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
       return collection;
     },
+    updateCollection: async (_, {
+      _id,
+      input
+    }) => {
+      await _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].updateOne({
+        _id
+      }, _objectSpread({}, input)).catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
+        _id
+      }).catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+    },
+    removeCollection: async (_, {
+      _id
+    }) => {
+      const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
+        _id
+      }).catch(err => {
+        throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
+      });
+      return collection.remove();
+    },
     addImage: async (_, {
       _id,
       input
@@ -429,7 +454,9 @@ __webpack_require__.r(__webpack_exports__);
   }
 
   extend type Mutation {
-    addCollection(collection: CollectionInput): Collection,
+    addCollection(collection: CollectionAdd): Collection,
+    removeCollection(_id: String): Boolean,
+    updateCollection(_id: String, input: CollectionUpdate): Collection,
     addImage(_id: String, input: ImageInput): Collection,
     removeImage(_id: String, image: String): Collection,
   }
@@ -445,7 +472,7 @@ __webpack_require__.r(__webpack_exports__);
     likes: Int,
   }
 
-  input CollectionInput {
+  input CollectionAdd {
     name: String,
     subtitle: String,
     description: String,
@@ -453,6 +480,12 @@ __webpack_require__.r(__webpack_exports__);
     images: [ImageInput],
     comments: [CommentInput],
     likes: Int,
+  }
+
+  input CollectionUpdate {
+    name: String,
+    subtitle: String,
+    description: String,
   }
 
 `);
@@ -1335,7 +1368,6 @@ __webpack_require__.r(__webpack_exports__);
     throw new _utilities__WEBPACK_IMPORTED_MODULE_0__["Tantrum"](500, 'some error');
   });
   router.post('/login', async (req, res, next) => {
-    console.log(req.body);
     const {
       email,
       password
@@ -1475,7 +1507,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const login = async (email, password) => {
-  console.log(email);
   const user = await _models_user__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
     email
   }).select('+password').exec().catch(err => {

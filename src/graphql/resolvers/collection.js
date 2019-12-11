@@ -29,6 +29,23 @@ export default {
         });
       return collection;
     },
+    updateCollection: async (_, { _id, input }) => {
+      await Collection.updateOne({ _id }, { ...input })
+        .catch((err) => {
+          throw new Tantrum(500, err);
+        });
+      return Collection.findOne({ _id })
+        .catch((err) => {
+          throw new Tantrum(500, err);
+        });
+    },
+    removeCollection: async (_, { _id }) => {
+      const collection = await Collection.findOne({ _id })
+        .catch((err) => {
+          throw new Tantrum(500, err);
+        });
+      return collection.remove();
+    },
     addImage: async (_, { _id, input }) => {
       const image = new Image({ ...input });
       const collection = await Collection.findOne({ _id })
