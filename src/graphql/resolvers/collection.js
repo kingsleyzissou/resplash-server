@@ -11,6 +11,10 @@ export default {
     },
     collections: async (_, args, { user }) => {
       if (!user) return null;
+      return Collection.find();
+    },
+    userCollections: async (_, args, { user }) => {
+      if (!user) return null;
       return Collection.find({
         user: {
           _id: user._id,

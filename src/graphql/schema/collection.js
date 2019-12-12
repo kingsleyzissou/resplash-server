@@ -3,6 +3,7 @@ export default (gql) => gql`
   extend type Query {
     collection(_id: String): Collection,
     collections: [Collection],
+    userCollections: [Collection],
   }
 
   extend type Mutation {

@@ -7,7 +7,8 @@
     "dev": "backpack",
     "build": "backpack build",
     "test": "NODE_ENV=test jest --collect-coverage",
-    "test:watch": "NODE_ENV=test jest --collect-coverage=false --watch"
+    "test:watch": "NODE_ENV=test jest --collect-coverage=false --watch",
+    "lint": "eslint 'src/**/*.js' --ignore-pattern src/tests/"
   },
   "repository": {
     "type": "git",

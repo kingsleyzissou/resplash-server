@@ -214,6 +214,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       user
     }) => {
       if (!user) return null;
+      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].find();
+    },
+    userCollections: async (_, args, {
+      user
+    }) => {
+      if (!user) return null;
       return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].find({
         user: {
           _id: user._id
@@ -528,6 +534,7 @@ __webpack_require__.r(__webpack_exports__);
   extend type Query {
     collection(_id: String): Collection,
     collections: [Collection],
+    userCollections: [Collection],
   }
 
   extend type Mutation {
@@ -1132,6 +1139,7 @@ __webpack_require__.r(__webpack_exports__);
  // eslint-disable-next-line
 
 _schema__WEBPACK_IMPORTED_MODULE_1__["default"].pre(['find', 'findOne'], function () {
+  this.populate('user');
   this.populate('comments');
 }); // eslint-disable-next-line
 

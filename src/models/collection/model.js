@@ -3,6 +3,7 @@ import schema from './schema';
 
 // eslint-disable-next-line
 schema.pre(['find', 'findOne'], function () {
+  this.populate('user');
   this.populate('comments');
 });
 

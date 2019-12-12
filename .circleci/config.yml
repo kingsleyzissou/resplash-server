@@ -41,6 +41,22 @@ jobs:
 
       # run tests!
       - run: yarn test
+  lint:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:10
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      
+      # Used for local build
+      - run: 
+          name: "Run linter"
+          command: |
+            yarn lint 
+
   deploy:
     docker:
       # specify the version you desire here
@@ -57,10 +73,11 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - deploy:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - build
+      - lint
+      # - deploy:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #     requires:
+      #       - build
