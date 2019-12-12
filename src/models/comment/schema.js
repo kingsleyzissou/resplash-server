@@ -8,13 +8,15 @@ const schema = new Schema({
     enum: ['collection', 'comment'],
     default: 'collection',
   },
-  comment: {
+  typeId: Schema.Types.ObjectId,
+  message: {
     type: String,
     required: true,
   },
-  subcomments: [{
+  comments: [{
     type: Schema.Types.ObjectId,
-    required: 'comment',
+    ref: 'comment',
+    default: [],
   }],
   user: {
     type: Schema.Types.ObjectId,
@@ -24,8 +26,14 @@ const schema = new Schema({
     type: Number,
     default: 0,
   },
-  created_at: Date,
-  updated_at: Date,
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export default schema;

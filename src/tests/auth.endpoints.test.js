@@ -16,14 +16,15 @@ describe('Auth endpoint tests', () => {
     name: 'Gianluca',
     username: 'gianluca',
     email: 'gianluca@test.com',
-    password: 'hello'
+    password: 'hello',
   }
 
   const newUserData = {
     name: 'Test',
     username: 'test',
     email: 'test@test.com',
-    password: 'test'
+    password: 'test123',
+    confirm: 'test123',
   }
 
   beforeAll(async () => {
@@ -60,7 +61,7 @@ describe('Auth endpoint tests', () => {
     done();
   }, 30000);
 
-  it('Should return correct user for new registrion', async (done) => {
+  it('Should return correct user for new registration', async (done) => {
     const res = await request
       .post('/register')
       .send(newUserData);

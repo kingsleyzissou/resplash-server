@@ -7,4 +7,4 @@ import artist from './artist';
 import avatar from './avatar';
 import url from './url';
 
-export default [base, user, collection, image, comment, avatar, artist, url];
+export default [base, user, comment, collection, image, avatar, artist, url];

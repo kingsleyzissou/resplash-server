@@ -12,8 +12,6 @@ const schema = new Schema({
   full: {
     type: String,
   },
-  created_at: Date,
-  updated_at: Date,
 });
 
 export default schema;

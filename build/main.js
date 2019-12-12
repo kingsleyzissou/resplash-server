@@ -206,7 +206,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       user
     }) => {
       if (!user) return null;
-      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findById({
+      return _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
         _id
       });
     },
@@ -246,7 +246,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         throw new _utilities_tantrum__WEBPACK_IMPORTED_MODULE_2__["default"](500, err);
       });
     },
-    removeCollection: async (_, {
+    deleteCollection: async (_, {
       _id
     }) => {
       const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
@@ -288,6 +288,76 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /***/ }),
 
+/***/ "./src/graphql/resolvers/comment.js":
+/*!******************************************!*\
+  !*** ./src/graphql/resolvers/comment.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_comment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ~/models/comment */ "./src/models/comment/index.js");
+/* harmony import */ var _models_collection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ~/models/collection */ "./src/models/collection/index.js");
+
+
+
+const pushToCollection = async (_id, comment) => {
+  await _models_collection__WEBPACK_IMPORTED_MODULE_1__["default"].updateOne({
+    _id
+  }, {
+    $push: {
+      comments: comment._id
+    }
+  });
+  return comment;
+};
+
+const pushToSubcomment = async (_id, comment) => {
+  await _models_comment__WEBPACK_IMPORTED_MODULE_0__["default"].updateOne({
+    _id
+  }, {
+    $push: {
+      comments: comment._id
+    }
+  });
+  return comment;
+};
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  Query: {
+    comments: async (_, {
+      typeId
+    }) => {
+      const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_1__["default"].findOne({
+        _id: typeId
+      });
+      return collection.comments;
+    }
+  },
+  Mutation: {
+    addComment: async (_, {
+      typeId,
+      type,
+      input
+    }, {
+      user
+    }) => {
+      if (!user) return null;
+      const comment = new _models_comment__WEBPACK_IMPORTED_MODULE_0__["default"]({
+        type,
+        typeId,
+        user: user._id,
+        message: input
+      });
+      await comment.save();
+      return type === 'collection' ? pushToCollection(typeId, comment) : pushToSubcomment(typeId, comment);
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./src/graphql/resolvers/index.js":
 /*!****************************************!*\
   !*** ./src/graphql/resolvers/index.js ***!
@@ -299,9 +369,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./user */ "./src/graphql/resolvers/user.js");
 /* harmony import */ var _collection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./collection */ "./src/graphql/resolvers/collection.js");
+/* harmony import */ var _comment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./comment */ "./src/graphql/resolvers/comment.js");
 
 
-/* harmony default export */ __webpack_exports__["default"] = ([_user__WEBPACK_IMPORTED_MODULE_0__["default"], _collection__WEBPACK_IMPORTED_MODULE_1__["default"]]);
+
+/* harmony default export */ __webpack_exports__["default"] = ([_user__WEBPACK_IMPORTED_MODULE_0__["default"], _collection__WEBPACK_IMPORTED_MODULE_1__["default"], _comment__WEBPACK_IMPORTED_MODULE_2__["default"]]);
 
 /***/ }),
 
@@ -358,7 +430,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _url__WEBPACK_IMPORTED_MODULE_7__["default"]]);
+/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _url__WEBPACK_IMPORTED_MODULE_7__["default"]]);
 
 /***/ }),
 
@@ -454,8 +526,8 @@ __webpack_require__.r(__webpack_exports__);
   }
 
   extend type Mutation {
-    addCollection(collection: CollectionAdd): Collection,
-    removeCollection(_id: String): Boolean,
+    addCollection(input: CollectionAdd): Collection,
+    deleteCollection(_id: String): Collection,
     updateCollection(_id: String, input: CollectionUpdate): Collection,
     addImage(_id: String, input: ImageInput): Collection,
     removeImage(_id: String, image: String): Collection,
@@ -510,21 +582,29 @@ __webpack_require__.r(__webpack_exports__);
 
   extend type Query {
     comment(_id: String): Comment,
-    comments: [Comment],
+    comments(typeId: String): [Comment],
+  }
+
+  extend type Mutation {
+    addComment(typeId: String, type: CommentType, input: String): Comment,
   }
 
   type Comment {
     _id: String,
     type: CommentType,
-    subcomments: [Comment],
+    typeId: String,
+    message: String,
+    comments: [Comment],
     user: User,
     likes: Int,
+    created_at: String,
   }
 
   input CommentInput {
     type: CommentType,
-    subcomments: [CommentInput],
+    comments: [CommentInput],
     user: String,
+    typeId: String,
     likes: Int,
   }
 
@@ -1027,7 +1107,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./schema */ "./src/models/collection/schema.js");
 
+ // eslint-disable-next-line
 
+_schema__WEBPACK_IMPORTED_MODULE_1__["default"].pre(['find', 'findOne'], function () {
+  this.populate('comments');
+});
 /* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('collection', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
 
 /***/ }),
@@ -1044,8 +1128,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
 /* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _image_schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../image/schema */ "./src/models/image/schema.js");
-/* harmony import */ var _comment_schema__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../comment/schema */ "./src/models/comment/schema.js");
-
 
 
 const {
@@ -1071,18 +1153,61 @@ const schema = new Schema({
     type: _image_schema__WEBPACK_IMPORTED_MODULE_1__["default"],
     default: []
   }],
-  comment: [{
-    type: _comment_schema__WEBPACK_IMPORTED_MODULE_2__["default"],
-    default: []
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'comment'
   }],
   likes: {
     type: Number,
     default: 0
   },
-  created_at: Date,
-  updated_at: Date
+  created_at: {
+    type: Date,
+    default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (schema);
+
+/***/ }),
+
+/***/ "./src/models/comment/index.js":
+/*!*************************************!*\
+  !*** ./src/models/comment/index.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model */ "./src/models/comment/model.js");
+
+/* harmony default export */ __webpack_exports__["default"] = (_model__WEBPACK_IMPORTED_MODULE_0__["default"]);
+
+/***/ }),
+
+/***/ "./src/models/comment/model.js":
+/*!*************************************!*\
+  !*** ./src/models/comment/model.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _schema__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./schema */ "./src/models/comment/schema.js");
+
+ // eslint-disable-next-line
+
+_schema__WEBPACK_IMPORTED_MODULE_1__["default"].pre(['find', 'findOne'], function () {
+  this.populate('user');
+});
+/* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('comment', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
 
 /***/ }),
 
@@ -1107,13 +1232,15 @@ const schema = new Schema({
     enum: ['collection', 'comment'],
     default: 'collection'
   },
-  comment: {
+  typeId: Schema.Types.ObjectId,
+  message: {
     type: String,
     required: true
   },
-  subcomments: [{
+  comments: [{
     type: Schema.Types.ObjectId,
-    required: 'comment'
+    ref: 'comment',
+    default: []
   }],
   user: {
     type: Schema.Types.ObjectId,
@@ -1123,8 +1250,14 @@ const schema = new Schema({
     type: Number,
     default: 0
   },
-  created_at: Date,
-  updated_at: Date
+  created_at: {
+    type: Date,
+    default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (schema);
 
@@ -1203,9 +1336,7 @@ const schema = new Schema({
   likes: {
     type: Number,
     default: 0
-  },
-  created_at: Date,
-  updated_at: Date
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (schema);
 
@@ -1235,9 +1366,7 @@ const schema = new Schema({
   },
   full: {
     type: String
-  },
-  created_at: Date,
-  updated_at: Date
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (schema);
 
@@ -1331,9 +1460,7 @@ const schema = new Schema({
     type: String,
     required: true,
     select: false
-  },
-  created_at: Date,
-  updated_at: Date
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (schema);
 
@@ -1413,8 +1540,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! body-parser */ "body-parser");
 /* harmony import */ var body_parser__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(body_parser__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
-/* harmony import */ var _graphql_server__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ~/graphql/server */ "./src/graphql/server.js");
+/* harmony import */ var _graphql_server__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ~/graphql/server */ "./src/graphql/server.js");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ~/routes */ "./src/routes/index.js");
 
 
 
@@ -1436,14 +1563,14 @@ __webpack_require__.r(__webpack_exports__);
   // you can now go to localhost:{port}/graphql
   // to access the graphql playground
 
-  _graphql_server__WEBPACK_IMPORTED_MODULE_5__["default"].applyMiddleware({
+  _graphql_server__WEBPACK_IMPORTED_MODULE_4__["default"].applyMiddleware({
     app,
     path: '/graphql'
   }); // this statement is last
   // so error handling can be
   // applied
 
-  return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_4__["default"])(router));
+  return app.use(Object(_routes__WEBPACK_IMPORTED_MODULE_5__["default"])(router));
 });
 
 /***/ }),

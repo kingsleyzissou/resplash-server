@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import ImageSchema from '../image/schema';
-import CommentSchema from '../comment/schema';
 
 const { Schema } = mongoose;
 
@@ -24,16 +23,22 @@ const schema = new Schema({
     type: ImageSchema,
     default: [],
   }],
-  comment: [{
-    type: CommentSchema,
-    default: [],
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'comment',
   }],
   likes: {
     type: Number,
     default: 0,
   },
-  created_at: Date,
-  updated_at: Date,
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export default schema;

@@ -7,7 +7,7 @@ export default {
   Query: {
     collection: async (_, { _id }, { user }) => {
       if (!user) return null;
-      return Collection.findById({ _id });
+      return Collection.findOne({ _id });
     },
     collections: async (_, args, { user }) => {
       if (!user) return null;
@@ -39,7 +39,7 @@ export default {
           throw new Tantrum(500, err);
         });
     },
-    removeCollection: async (_, { _id }) => {
+    deleteCollection: async (_, { _id }) => {
       const collection = await Collection.findOne({ _id })
         .catch((err) => {
           throw new Tantrum(500, err);

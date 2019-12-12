@@ -26,8 +26,6 @@ const schema = new Schema({
     type: Number,
     default: 0,
   },
-  created_at: Date,
-  updated_at: Date,
 });
 
 export default schema;

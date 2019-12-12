@@ -2,8 +2,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import express from 'express';
 import bodyParser from 'body-parser';
-import routes from '~/routes';
 import apollo from '~/graphql/server';
+import routes from '~/routes';
 
 export default () => {
   const app = express();
