@@ -21,7 +21,6 @@ export default (gql) => gql`
     user: User,
     images: [Image],
     comments: [Comment],
-    likes: Int,
   }
 
   input CollectionAdd {
@@ -29,9 +28,6 @@ export default (gql) => gql`
     subtitle: String,
     description: String,
     user: String,
-    images: [ImageInput],
-    comments: [CommentInput],
-    likes: Int,
   }
 
   input CollectionUpdate {

@@ -11,7 +11,7 @@ export default (gql) => gql`
     alt_description: String,
     user: Artist,
     urls: Url,
-    likes: Int,
+    likeStats: Like,
   }
 
   input ImageInput {
@@ -20,7 +20,6 @@ export default (gql) => gql`
     alt_description: String,
     user: ArtistInput,
     urls: UrlInput,
-    likes: Int,
   }
 
 `;

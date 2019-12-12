@@ -7,7 +7,7 @@ export default (gql) => gql`
 
   extend type Query {
     comment(_id: String): Comment,
-    comments(typeId: String): [Comment],
+    comments(typeId: String, type: CommentType): [Comment],
   }
 
   extend type Mutation {
@@ -21,7 +21,6 @@ export default (gql) => gql`
     message: String,
     comments: [Comment],
     user: User,
-    likes: Int,
     created_at: String,
   }
 
@@ -30,7 +29,6 @@ export default (gql) => gql`
     comments: [CommentInput],
     user: String,
     typeId: String,
-    likes: Int,
   }
 
 `;

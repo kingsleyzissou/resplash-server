@@ -327,12 +327,15 @@ const pushToSubcomment = async (_id, comment) => {
 /* harmony default export */ __webpack_exports__["default"] = ({
   Query: {
     comments: async (_, {
-      typeId
+      typeId,
+      type
     }) => {
-      const collection = await _models_collection__WEBPACK_IMPORTED_MODULE_1__["default"].findOne({
+      const obj = type === 'collection' ? await _models_collection__WEBPACK_IMPORTED_MODULE_1__["default"].findOne({
+        _id: typeId
+      }) : await _models_comment__WEBPACK_IMPORTED_MODULE_0__["default"].findOne({
         _id: typeId
       });
-      return collection.comments;
+      return obj.comments;
     }
   },
   Mutation: {
@@ -422,6 +425,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _artist__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./artist */ "./src/graphql/schema/artist.js");
 /* harmony import */ var _avatar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./avatar */ "./src/graphql/schema/avatar.js");
 /* harmony import */ var _url__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./url */ "./src/graphql/schema/url.js");
+/* harmony import */ var _like__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./like */ "./src/graphql/schema/like.js");
 
 
 
@@ -430,7 +434,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _url__WEBPACK_IMPORTED_MODULE_7__["default"]]);
+
+/* harmony default export */ __webpack_exports__["default"] = ([_base__WEBPACK_IMPORTED_MODULE_0__["default"], _user__WEBPACK_IMPORTED_MODULE_1__["default"], _comment__WEBPACK_IMPORTED_MODULE_4__["default"], _collection__WEBPACK_IMPORTED_MODULE_2__["default"], _image__WEBPACK_IMPORTED_MODULE_3__["default"], _avatar__WEBPACK_IMPORTED_MODULE_6__["default"], _artist__WEBPACK_IMPORTED_MODULE_5__["default"], _url__WEBPACK_IMPORTED_MODULE_7__["default"], _like__WEBPACK_IMPORTED_MODULE_8__["default"]]);
 
 /***/ }),
 
@@ -541,7 +546,6 @@ __webpack_require__.r(__webpack_exports__);
     user: User,
     images: [Image],
     comments: [Comment],
-    likes: Int,
   }
 
   input CollectionAdd {
@@ -549,9 +553,6 @@ __webpack_require__.r(__webpack_exports__);
     subtitle: String,
     description: String,
     user: String,
-    images: [ImageInput],
-    comments: [CommentInput],
-    likes: Int,
   }
 
   input CollectionUpdate {
@@ -582,7 +583,7 @@ __webpack_require__.r(__webpack_exports__);
 
   extend type Query {
     comment(_id: String): Comment,
-    comments(typeId: String): [Comment],
+    comments(typeId: String, type: CommentType): [Comment],
   }
 
   extend type Mutation {
@@ -596,7 +597,6 @@ __webpack_require__.r(__webpack_exports__);
     message: String,
     comments: [Comment],
     user: User,
-    likes: Int,
     created_at: String,
   }
 
@@ -605,7 +605,6 @@ __webpack_require__.r(__webpack_exports__);
     comments: [CommentInput],
     user: String,
     typeId: String,
-    likes: Int,
   }
 
 `);
@@ -634,7 +633,7 @@ __webpack_require__.r(__webpack_exports__);
     alt_description: String,
     user: Artist,
     urls: Url,
-    likes: Int,
+    likeStats: Like,
   }
 
   input ImageInput {
@@ -643,7 +642,6 @@ __webpack_require__.r(__webpack_exports__);
     alt_description: String,
     user: ArtistInput,
     urls: UrlInput,
-    likes: Int,
   }
 
 `);
@@ -665,6 +663,30 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_aggregator__WEBPACK_IMPORTED_MODULE_1__["default"].map(s => s(apollo_server_express__WEBPACK_IMPORTED_MODULE_0__["gql"])));
+
+/***/ }),
+
+/***/ "./src/graphql/schema/like.js":
+/*!************************************!*\
+  !*** ./src/graphql/schema/like.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = (gql => gql`
+
+  extend type Query {
+    likes: Like,
+  }
+
+  type Like {
+    likedByMe: Boolean,
+    count: Int,
+  }
+
+`);
 
 /***/ }),
 
@@ -1111,7 +1133,15 @@ __webpack_require__.r(__webpack_exports__);
 
 _schema__WEBPACK_IMPORTED_MODULE_1__["default"].pre(['find', 'findOne'], function () {
   this.populate('comments');
-});
+}); // eslint-disable-next-line
+
+_schema__WEBPACK_IMPORTED_MODULE_1__["default"].methods.likeDetails = function (user) {
+  return {
+    likedByMe: this.likes.includes(user),
+    count: this.likes.length
+  };
+};
+
 /* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('collection', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
 
 /***/ }),
@@ -1157,10 +1187,11 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'comment'
   }],
-  likes: {
-    type: Number,
-    default: 0
-  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: []
+  }],
   created_at: {
     type: Date,
     default: Date.now
@@ -1206,7 +1237,16 @@ __webpack_require__.r(__webpack_exports__);
 
 _schema__WEBPACK_IMPORTED_MODULE_1__["default"].pre(['find', 'findOne'], function () {
   this.populate('user');
-});
+  this.populate('comments');
+}); // eslint-disable-next-line
+
+_schema__WEBPACK_IMPORTED_MODULE_1__["default"].methods.likeDetails = function (user) {
+  return {
+    likedByMe: this.likes.includes(user),
+    count: this.likes.length
+  };
+};
+
 /* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('comment', _schema__WEBPACK_IMPORTED_MODULE_1__["default"]));
 
 /***/ }),
@@ -1246,10 +1286,11 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'user'
   },
-  likes: {
-    type: Number,
-    default: 0
-  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: []
+  }],
   created_at: {
     type: Date,
     default: Date.now

@@ -22,10 +22,11 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'user',
   },
-  likes: {
-    type: Number,
-    default: 0,
-  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: [],
+  }],
   created_at: {
     type: Date,
     default: Date.now,

@@ -22,9 +22,11 @@ const pushToSubcomment = async (_id, comment) => {
 export default {
 
   Query: {
-    comments: async (_, { typeId }) => {
-      const collection = await Collection.findOne({ _id: typeId });
-      return collection.comments;
+    comments: async (_, { typeId, type }) => {
+      const obj = (type === 'collection')
+        ? await Collection.findOne({ _id: typeId })
+        : await Comment.findOne({ _id: typeId });
+      return obj.comments;
     },
   },
 

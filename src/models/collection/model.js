@@ -6,4 +6,12 @@ schema.pre(['find', 'findOne'], function () {
   this.populate('comments');
 });
 
+// eslint-disable-next-line
+schema.methods.likeDetails = function (user) {
+  return {
+    likedByMe: this.likes.includes(user),
+    count: this.likes.length,
+  };
+};
+
 export default mongoose.model('collection', schema);
