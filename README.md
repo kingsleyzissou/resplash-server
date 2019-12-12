@@ -50,6 +50,14 @@ The the core schemas were as follows:
 	- Comments
 - User
 
+## Testing.
+
+The backend makes use of jest to carry out the unit tests. The unit tests test basic functionality of the backend as well as the API endpoints.
+
+## CI/CD.
+
+Circleci was used for the ci/cd pipeline. On completion of the tests, the app was deployed to a DigitalOcean droplet.
+
 ## Independent learning.
 
 Instead of building a REST api, I opted to use GraphQL with Apollo Server to query the backend from the client. The GraphQL playground can be found by running the server locally and navigation to ``` http://localhost:4000/graphql ```
