@@ -51,6 +51,20 @@ jobs:
     steps:
       - checkout
       
+      - run: 
+          name: "Set environment"
+          command: |
+            echo 'export NODE_ENV="development"' >> $BASH_ENV
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: yarn install
+
       # Used for local build
       - run: 
           name: "Run linter"
@@ -74,10 +88,10 @@ workflows:
     jobs:
       - build
       - lint
-      # - deploy:
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #     requires:
-      #       - build
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - build
